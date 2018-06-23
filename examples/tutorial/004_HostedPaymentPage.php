@@ -1,14 +1,16 @@
 <?php
 /**
- * Copyright (c) 2014-2015 BitPay
+ * Copyright (c) 2014-2017 BitPay
  *
- * 003 - Creating Invoices
+ * 004 - Hosted payment page: create & display invoice
+ * For details on displaying invoices, see https://bitpay.com/docs/display-invoice
  *
  * Requirements:
  *   - Account on https://test.bitpay.com
  *   - Basic PHP Knowledge
  *   - Private and Public keys from 001.php
  *   - Token value obtained from 002.php
+ *   - A webserver to run the code. Running locally works with firefox, but not with Safari & Chrome
  */
 require __DIR__.'/../../vendor/autoload.php';
 
@@ -17,8 +19,7 @@ $storageEngine = new \Bitpay\Storage\EncryptedFilesystemStorage('YourTopSecretPa
 $privateKey    = $storageEngine->load('/tmp/bitpay.pri');
 $publicKey     = $storageEngine->load('/tmp/bitpay.pub');
 $client        = new \Bitpay\Client\Client();
-//$network       = new \Bitpay\Network\Testnet();
-$network       = new \Bitpay\Network\Livenet();
+$network       = new \Bitpay\Network\Testnet();
 $adapter       = new \Bitpay\Client\Adapter\CurlAdapter();
 $client->setPrivateKey($privateKey);
 $client->setPublicKey($publicKey);
@@ -44,8 +45,9 @@ $client->setToken($token);
 $invoice = new \Bitpay\Invoice();
 
 $buyer = new \Bitpay\Buyer();
+$buyerEmail = "buyeremail@test.com";
 $buyer
-    ->setEmail('buyeremail@test.com');
+    ->setEmail($buyerEmail);
 
 // Add the buyers info to invoice
 $invoice->setBuyer($buyer);
@@ -82,17 +84,31 @@ $invoice
  * a customer can view the invoice.
  */
 try {
-    echo "Creating invoice at BitPay now.".PHP_EOL;
     $client->createInvoice($invoice);
 } catch (\Exception $e) {
-    echo "Exception occured: " . $e->getMessage().PHP_EOL;
     $request  = $client->getRequest();
     $response = $client->getResponse();
     echo (string) $request.PHP_EOL.PHP_EOL.PHP_EOL;
     echo (string) $response.PHP_EOL.PHP_EOL;
     exit(1); // We do not want to continue if something went wrong
 }
-
-echo 'Invoice "'.$invoice->getId().'" created, see '.$invoice->getUrl().PHP_EOL;
-echo "Verbose details.".PHP_EOL;
-print_r($invoice);
+?>
+<html>
+  <head><title>BitPay - Modal CSS invoice demo</title></head>
+  <body bgcolor="rgb(21,28,111)" textcolor="rgb(255,255,255)">
+    <button onclick="openInvoice()">Pay Now</button>
+    <br><br><br>
+    For more information about BitPay's modal CSS invoice, please see <a href="https://bitpay.com/docs/display-invoice" target="_blank">https://bitpay.com/docs/display-invoice</a>
+  </body>
+  <script src="https://bitpay.com/bitpay.js"> </script>
+  <script>
+    function openInvoice() {
+      var network = "testnet"
+      if (network == "testnet")
+        bitpay.setApiUrlPrefix("https://test.bitpay.com")
+      else
+        bitpay.setApiUrlPrefix("https://bitpay.com")
+      bitpay.showInvoice("<?php echo $invoice->getId();?>");
+    }
+  </script>
+</html>

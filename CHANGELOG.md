@@ -2,6 +2,46 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.2.20] - 2018-03-28
+### Fixed
+- Fixed failing phpunit tests (#262)
+- Fixed DateTime zone issues (#261)
+- Fixed $invoice->getPaymentTotals() returns subTotals instead (#264)
+
+## [2.2.19] - 2018-03-08
+### Added
+- Added support for BCH fields in the invoice: transactionCurrency, amountPaid, exchangeRates, paymentSubtotals, paymentTotals
+
+### Fixed
+- Set timezone to UTC (=timezone that BitPay invoices use), to prevent PHP errors when no default timezone is set
+
+### Deprecated
+- Deprecated BTC specific fields, as documented at https://bitpay.com/api#resource-Invoices
+
+
+## [2.2.18] - 2018-01-15
+### Fixed
+- Pushed actual code changes to GitHub from previous release
+
+
+## [2.2.17] - 2018-01-15
+### Fixed
+- Fixed decimal check for currencies without decimals (e.g. HUF)
+
+## [2.2.16] - 2017-12-12
+### Fixed
+- Fixed invoice time being set in milliseconds, whereas seconds are expected (Issue #256 and #257)
+- Removed deprecated factory methods from services.xml
+
+
+## [2.2.15] - 2017-11-28
+### Fixed
+- Fixed invoice time being set as numeric instead of datetime object
+
+### Removed
+- Removed support for mcrypt (#254)
+
+
 ## [2.2.14] - 2017-09-27
 ### Fixed
 - Fixed token check in get invoices method for public facade calls (#243)
